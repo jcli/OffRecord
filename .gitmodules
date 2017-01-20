@@ -1,0 +1,3 @@
+[submodule "googledrivemodule"]
+	path = googledrivemodule
+	url = git@github.com:jcli/googledrivemodule.git
