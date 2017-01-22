@@ -40,4 +40,5 @@ dependencies {
     compile 'com.orhanobut:logger:1.15'
     compile 'com.jakewharton.timber:timber:4.3.1'
     testCompile 'junit:junit:4.12'
+    compile project(path: ':googledrivemodule')
 }
