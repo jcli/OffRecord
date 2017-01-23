@@ -11,6 +11,7 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v4.widget.TextViewCompat;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -18,8 +19,10 @@ import android.support.v7.widget.Toolbar;
 import android.text.InputType;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.TextureView;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.Status;
@@ -179,7 +182,7 @@ public class OffRecordMainActivity extends AppCompatActivity
 
 
     /////////////////////////////////////////////////////////////////////////////
-    // private APIs
+    // private helper APIs
     /////////////////////////////////////////////////////////////////////////////
     private HashSet<ControllerServiceInterface> mServiceListeners;
     private OffRecordMainService mMainService;
@@ -271,6 +274,13 @@ public class OffRecordMainActivity extends AppCompatActivity
         });
         mPassDialog = builder.show();
         mPassDialog.setCanceledOnTouchOutside(false);
+    }
+
+    private void setUserName(){
+        TextView title = (TextView) findViewById(R.id.drawer_title);
+        title.setText(mGoogleApiModel.getDisplayName());
+        TextView email = (TextView) findViewById(R.id.drawer_user_email);
+        email.setText(mGoogleApiModel.getEmail());
     }
 
     private void startProcessingForAll(){
@@ -367,6 +377,7 @@ public class OffRecordMainActivity extends AppCompatActivity
                     }
                     break;
                 case INITIALIZED:
+                    setUserName();
                     break;
             }
         }
