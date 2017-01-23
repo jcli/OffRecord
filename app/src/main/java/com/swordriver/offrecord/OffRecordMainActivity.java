@@ -9,7 +9,12 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
+import android.support.design.widget.TabLayout;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.GravityCompat;
+import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.TextViewCompat;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -72,6 +77,18 @@ public class OffRecordMainActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
+        // setup tabs
+        mViewPager = (ViewPager) findViewById(R.id.main_viewpager);
+        mPagerAdapter = (OffRecordPagerAdapter) (mViewPager.getAdapter());
+        if (mPagerAdapter==null) {
+            Timber.tag(LogAreas.UI.s()).v("creating pager adapter");
+            mPagerAdapter = new OffRecordPagerAdapter(getSupportFragmentManager());
+            mViewPager.setAdapter(mPagerAdapter);
+        }
+        mTabLayout = (TabLayout) findViewById(R.id.main_tabs);
+        mTabLayout.setupWithViewPager(mViewPager);
+
     }
 
     @Override
@@ -181,6 +198,58 @@ public class OffRecordMainActivity extends AppCompatActivity
     }
 
 
+    ////////////////////////////////////
+    // pager adapter for the pager views
+    ////////////////////////////////////
+    private class OffRecordPagerAdapter extends FragmentPagerAdapter {
+
+        final private static int NUM_TABS = 2;
+        private Fragment[] mFragmentArray = new Fragment[NUM_TABS];
+
+        public OffRecordPagerAdapter(FragmentManager fm) {
+            super(fm);
+        }
+
+        @Override
+        public Fragment getItem(int position) {
+            if (mFragmentArray[position]==null){
+                switch (position){
+                    case 0:
+                        mFragmentArray[position]= new FragmentNotes();
+                        break;
+                    case 1:
+                        mFragmentArray[position]= new FragmentPassGenerator();
+                        break;
+                    default:
+                        return null;
+                }
+            }
+            return (Fragment) mFragmentArray[position];
+        }
+
+        @Override
+        public int getCount() {
+            return NUM_TABS;
+        }
+
+        @Override
+        public CharSequence getPageTitle(int position) {
+            String title = "";
+            switch (position) {
+                case 0:
+                    title = "Secure Notes";
+                    break;
+                case 1:
+                    title = "Password Generator";
+                    break;
+                default:
+                    break;
+            }
+            ;
+            return title;
+        }
+    }
+
     /////////////////////////////////////////////////////////////////////////////
     // private helper APIs
     /////////////////////////////////////////////////////////////////////////////
@@ -191,6 +260,9 @@ public class OffRecordMainActivity extends AppCompatActivity
     private AlertDialog mNewPassDialog=null;
     private AlertDialog mPassDialog=null;
     private long mLastActiveTime= System.currentTimeMillis();
+    private ViewPager mViewPager;
+    private TabLayout mTabLayout;
+    private OffRecordPagerAdapter mPagerAdapter;
 
     private void newPasswordPrompt() {
         LinearLayout passLayout = new LinearLayout(OffRecordMainActivity.this);
