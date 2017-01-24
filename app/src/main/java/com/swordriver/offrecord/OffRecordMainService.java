@@ -87,4 +87,16 @@ public class OffRecordMainService extends Service {
         }
         return mGoogleApiModel;
     }
+
+    /////////////////////////////////////////////
+    // google api reference and lifecycle
+    /////////////////////////////////////////////
+    private DataSourceNotes mNotesDataSource;
+
+    public DataSourceNotes getNotesDataSource(){
+        if (mNotesDataSource==null){
+            mNotesDataSource = new DataSourceNotes();
+        }
+        return mNotesDataSource;
+    }
 }
