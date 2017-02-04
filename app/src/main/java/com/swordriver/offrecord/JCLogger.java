@@ -15,7 +15,8 @@ public class JCLogger {
         LIFECYCLE,
         BACKGROUND,
         UI,
-        GOOGLEAPI;
+        GOOGLEAPI,
+        SECURE_NOTES;
         public String s(){
             return this.name();
         }

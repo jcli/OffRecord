@@ -26,6 +26,7 @@ public class OffRecordLogger {
             JCLogger.enableLogArea(JCLogger.LogAreas.BACKGROUND);
             JCLogger.enableLogArea(JCLogger.LogAreas.UI);
             JCLogger.enableLogArea(JCLogger.LogAreas.GOOGLEAPI);
+            JCLogger.enableLogArea(JCLogger.LogAreas.SECURE_NOTES);
             JCLogger.setStackOffset(4);
 
             if (BuildConfig.DEBUG) {
