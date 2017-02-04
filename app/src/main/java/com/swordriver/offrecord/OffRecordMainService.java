@@ -7,6 +7,7 @@ import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 
+import com.google.android.gms.common.data.DataBufferObserver;
 import com.swordriver.offrecord.JCLogger.LogAreas;
 
 import java.util.Observable;
@@ -16,9 +17,15 @@ import swordriver.com.googledrivemodule.GoogleApiModel;
 import swordriver.com.googledrivemodule.GoogleApiModelSecure;
 import timber.log.Timber;
 
-public class OffRecordMainService extends Service {
+public class OffRecordMainService extends Service{
     public OffRecordMainService() {
     }
+
+    public enum OffRecordServiceState {
+        GDRIVE_INIT,
+        INITIALIZED
+    }
+    OffRecordServiceState mState = OffRecordServiceState.GDRIVE_INIT;
 
     //////////////////////////////////////////////
     //Binder and life cycle events
@@ -59,6 +66,9 @@ public class OffRecordMainService extends Service {
     /////////////////////////////////////////////
     // public methods
     /////////////////////////////////////////////
+    public OffRecordServiceState getState(){
+        return mState;
+    }
 
     /////////////////////////////////////////////
     // google api reference and lifecycle
@@ -74,6 +84,7 @@ public class OffRecordMainService extends Service {
                     break;
                 case INITIALIZED:
                     //TODO: start processing
+                    mState=OffRecordServiceState.INITIALIZED;
                     break;
             }
         }
@@ -89,7 +100,7 @@ public class OffRecordMainService extends Service {
     }
 
     /////////////////////////////////////////////
-    // google api reference and lifecycle
+    // Note datasource reference and lifecycle
     /////////////////////////////////////////////
     private DataSourceNotes mNotesDataSource;
 
@@ -99,4 +110,5 @@ public class OffRecordMainService extends Service {
         }
         return mNotesDataSource;
     }
+
 }

@@ -194,7 +194,7 @@ public class OffRecordMainActivity extends AppCompatActivity
     // Interface definitions
     /////////////////////////////////////////////////////////////////////////////
     public interface ControllerServiceInterface {
-        public void startProcessing(OffRecordMainService service);
+        void startProcessing(OffRecordMainService service);
     }
 
 
@@ -356,7 +356,9 @@ public class OffRecordMainActivity extends AppCompatActivity
     }
 
     private void startProcessingForAll(){
-
+        for (ControllerServiceInterface i : mServiceListeners){
+            i.startProcessing(mMainService);
+        }
     }
 
     /////////////////////////////////////////////////////////////////////////////
@@ -365,11 +367,11 @@ public class OffRecordMainActivity extends AppCompatActivity
     public void setServiceListener(ControllerServiceInterface listener){
         mServiceListeners.add(listener);
         Timber.tag(LogAreas.UI.s()).v("Adding a service listener.");
-//        if (!=null &&
-//                mBeepService.getStatus()== BeepService.BeepServiceState.ALL_INITIALIZED){
-//            Timber.tag(LogAreas.UI.s()).v("push service handle to listener.");
-//            listener.startProcessing(mBeepService);
-//        }
+        if (mMainService!=null &&
+                mMainService.getState()== OffRecordMainService.OffRecordServiceState.INITIALIZED){
+            Timber.tag(LogAreas.UI.s()).v("push service handle to listener.");
+            listener.startProcessing(mMainService);
+        }
     }
 
     public void removeServiceListener(ControllerServiceInterface listener){
@@ -450,6 +452,9 @@ public class OffRecordMainActivity extends AppCompatActivity
                     break;
                 case INITIALIZED:
                     setUserName();
+                    startProcessingForAll();
+                    break;
+                default:
                     break;
             }
         }

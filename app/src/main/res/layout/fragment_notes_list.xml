@@ -16,7 +16,7 @@
         android:layout_centerHorizontal="true" />
 
     <com.github.clans.fab.FloatingActionMenu
-        android:id="@+id/contactListMenu"
+        android:id="@+id/notesListMenu"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_alignParentBottom="true"
@@ -26,34 +26,33 @@
         android:paddingLeft="10dp"
         fab:menu_labels_ellipsize="end"
         fab:menu_labels_singleLine="true"
-        fab:menu_backgroundColor="#ccffffff"
-        fab:menu_fab_label="Manage Contacts">
+        fab:menu_backgroundColor="#ccffffff">
 
 
 
     <com.github.clans.fab.FloatingActionButton
-        android:id="@+id/contactListButton1"
+        android:id="@+id/noteButton1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:src="@drawable/ic_edit"
         fab:fab_size="mini"
-        fab:fab_label="Add Contact" />
+        fab:fab_label="*" />
 
     <com.github.clans.fab.FloatingActionButton
-        android:id="@+id/contactListButton2"
+        android:id="@+id/noteButton2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:src="@drawable/ic_edit"
         fab:fab_size="mini"
-        fab:fab_label="Select Contacts" />
+        fab:fab_label="*" />
 
     <com.github.clans.fab.FloatingActionButton
-        android:id="@+id/contactListButton3"
+        android:id="@+id/noteButton3"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:src="@drawable/ic_edit"
         fab:fab_size="mini"
-        fab:fab_label="Select Contacts" />
+        fab:fab_label="*" />
 
     </com.github.clans.fab.FloatingActionMenu>
 
