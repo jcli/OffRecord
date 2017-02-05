@@ -13,10 +13,6 @@ import com.swordriver.offrecord.JCLogger.LogAreas;
 
 public class DataSourceNotes {
 
-    static public class NoteInfo{
-
-    }
-
     public interface NotesCallback{
         void updateListView (GoogleApiModel.FolderInfo notes);
     }
@@ -37,18 +33,23 @@ public class DataSourceNotes {
     public void setListner(NotesCallback listner){
         mListner=listner;
     }
+
     public void removeListner(){
         mListner=null;
     }
 
-    public void init(GoogleApiModel gmodel){
+    public void requestUpdate(){
+        if (mListner!=null) mListner.updateListView(mCurrentFolder);
+    }
+
+    synchronized public void init(GoogleApiModel gmodel){
         mGModel = gmodel;
         mGModel.listFolder(mGModel.getAppRootFolder(), new GoogleApiModel.ListFolderCallback(){
             private void processRoot(GoogleApiModel.FolderInfo info){
                 if (info!=null) mNoteRoot = info;
                 if (mCurrentFolder==null) {
                     mCurrentFolder=mNoteRoot;
-                    mListner.updateListView(mCurrentFolder);
+                    requestUpdate();
                 }
             }
             @Override
@@ -74,5 +75,17 @@ public class DataSourceNotes {
                 });
             }
         });
+    }
+
+    synchronized public void addNote(String name){
+        if (mGModel!=null && mCurrentFolder!=null){
+            mGModel.createTxtFileInFolder(name, mCurrentFolder.folder, new GoogleApiModel.ListFolderCallback() {
+                @Override
+                public void callback(GoogleApiModel.FolderInfo info) {
+                    mCurrentFolder=info;
+                    requestUpdate();
+                }
+            });
+        }
     }
 }
