@@ -404,6 +404,10 @@ public class OffRecordMainActivity extends AppCompatActivity
         public void onServiceConnected(ComponentName name, IBinder service) {
             OffRecordMainService.LocalBinder binder = (OffRecordMainService.LocalBinder) service;
             mMainService = binder.getService();
+            if (mMainService.getState()== OffRecordMainService.OffRecordServiceState.INITIALIZED){
+                startProcessingForAll();
+            }
+
             mGoogleApiModel = mMainService.getGoogleApiModel(OffRecordMainActivity.this);
             mGoogleApiModel.addObserver(mGoogleConnectionObserver);
             if (mGoogleApiModel.getStatus()== GoogleApiModel.GoogleApiStatus.DISCONNECTED) {

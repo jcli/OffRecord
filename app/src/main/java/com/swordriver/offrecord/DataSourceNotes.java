@@ -1,6 +1,8 @@
 package com.swordriver.offrecord;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.Timer;
 
 import swordriver.com.googledrivemodule.GoogleApiModel;
@@ -39,7 +41,24 @@ public class DataSourceNotes {
     }
 
     public void requestUpdate(){
-        if (mListner!=null) mListner.updateListView(mCurrentFolder);
+        if (mListner!=null) {
+            // sort current folder first
+            Arrays.sort(mCurrentFolder.items, new Comparator<GoogleApiModel.ItemInfo>() {
+                @Override
+                public int compare(GoogleApiModel.ItemInfo lhs, GoogleApiModel.ItemInfo rhs) {
+                    if (lhs.meta.isFolder() == rhs.meta.isFolder()) {
+                        return lhs.readableTitle.compareTo(rhs.readableTitle);
+                    } else {
+                        if (lhs.meta.isFolder()) {
+                            return -1;
+                        } else {
+                            return 1;
+                        }
+                    }
+                }
+            });
+            mListner.updateListView(mCurrentFolder);
+        }
     }
 
     synchronized public void init(GoogleApiModel gmodel){
