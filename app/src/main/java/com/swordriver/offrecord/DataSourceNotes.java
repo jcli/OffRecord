@@ -88,4 +88,16 @@ public class DataSourceNotes {
             });
         }
     }
+
+    synchronized public void addFolder(String name){
+        if (mGModel!=null && mCurrentFolder!=null){
+            mGModel.createFolderInFolder(name, mCurrentFolder.folder, false, new GoogleApiModel.ListFolderCallback(){
+                @Override
+                public void callback(GoogleApiModel.FolderInfo info) {
+                    mCurrentFolder=info;
+                    requestUpdate();
+                }
+            });
+        }
+    }
 }

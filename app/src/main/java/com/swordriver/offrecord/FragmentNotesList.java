@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
 import android.text.InputType;
@@ -18,16 +17,10 @@ import android.widget.TextView;
 
 import com.github.clans.fab.FloatingActionButton;
 import com.github.clans.fab.FloatingActionMenu;
-import com.google.android.gms.common.api.ResultCallback;
-import com.google.android.gms.common.api.Status;
-
-import java.util.List;
-import java.util.Timer;
 
 import swordriver.com.googledrivemodule.GoogleApiModel;
 import timber.log.Timber;
 
-import com.google.android.gms.games.video.Videos;
 import com.swordriver.offrecord.JCLogger.LogAreas;
 
 /**
@@ -122,6 +115,7 @@ public class FragmentNotesList extends Fragment implements OffRecordMainActivity
 
         // find the floating buttons
         final FloatingActionButton bAddNote = (FloatingActionButton) rootView.findViewById(R.id.noteButton1);
+        final FloatingActionButton bAddFolder = (FloatingActionButton) rootView.findViewById(R.id.noteButton2);
 
         // config add note
         bAddNote.setLabelText("Add Note");
@@ -129,15 +123,26 @@ public class FragmentNotesList extends Fragment implements OffRecordMainActivity
             @Override
             public void onClick(View v) {
                 menu.close(true);
-                addNotePopup();
+                addItemPopup("Note Name", false);
             }
         });
+
+        // config add folder
+        bAddFolder.setLabelText("Add Folder");
+        bAddFolder.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                menu.close(true);
+                addItemPopup("Folder Name", true);
+            }
+        });
+
     }
 
-    private void addNotePopup(){
+    private void addItemPopup(String promptText, final Boolean isFolder){
         {
             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-            builder.setTitle("Enter Name");
+            builder.setTitle(promptText);
             final EditText noteNameView= new EditText(getActivity());
             noteNameView.setInputType(InputType.TYPE_CLASS_TEXT);
             builder.setView(noteNameView);
@@ -147,7 +152,13 @@ public class FragmentNotesList extends Fragment implements OffRecordMainActivity
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     String name = noteNameView.getText().toString();
-                    if (mNotesSource!=null) mNotesSource.addNote(name);
+                    if (mNotesSource!=null) {
+                        if (isFolder){
+                            mNotesSource.addFolder(name);
+                        }else {
+                            mNotesSource.addNote(name);
+                        }
+                    }
                 }
             });
             builder.setOnCancelListener(new DialogInterface.OnCancelListener() {
