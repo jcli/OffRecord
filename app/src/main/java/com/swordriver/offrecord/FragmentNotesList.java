@@ -208,6 +208,7 @@ public class FragmentNotesList extends Fragment implements OffRecordMainActivity
             @Override
             public void onClick(View v) {
                 menu.close(true);
+                mNotesSource.deleteItems(mCurrentSelections);
                 mCurrentSelections=null;
                 menu.setOnMenuToggleListener(new FloatingActionMenu.OnMenuToggleListener() {
                     @Override
@@ -218,7 +219,6 @@ public class FragmentNotesList extends Fragment implements OffRecordMainActivity
                             menu.setOnMenuToggleListener(null);
                             ListView itemListView = (ListView) rootView.findViewById(R.id.notesListView);
                             itemListView.setOnItemClickListener(mItemClickListner);
-                            mNotesSource.requestUpdate();
                         }
                     }
                 });

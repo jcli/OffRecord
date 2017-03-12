@@ -1,12 +1,23 @@
 package com.swordriver.offrecord;
 
+import android.support.annotation.NonNull;
+
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Comparator;
+import java.util.Deque;
+import java.util.Iterator;
+import java.util.Set;
 import java.util.Timer;
 
 import swordriver.com.googledrivemodule.GoogleApiModel;
 import timber.log.Timber;
+
+import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.common.api.Status;
+import com.google.android.gms.drive.DriveId;
 import com.swordriver.offrecord.JCLogger.LogAreas;
 
 /**
@@ -41,6 +52,10 @@ public class DataSourceNotes {
     }
 
     public void requestUpdate(){
+        if (mCurrentFolder==null){
+            init(mGModel);
+            return;
+        }
         if (mListner!=null) {
             // sort current folder first
             Arrays.sort(mCurrentFolder.items, new Comparator<GoogleApiModel.ItemInfo>() {
@@ -118,5 +133,27 @@ public class DataSourceNotes {
                 }
             });
         }
+    }
+
+    synchronized public void deleteItems(Set<Integer> selections){
+        Deque<DriveId> items = new ArrayDeque<>();
+        for (Integer selection : selections){
+            items.add(mCurrentFolder.items[selection].meta.getDriveId());
+        }
+        mGModel.deleteMultipleItems(items, new ResultCallback<Status>() {
+            @Override
+            public void onResult(@NonNull Status status) {
+                if (status.isSuccess()) {
+                    Timber.tag(LogAreas.SECURE_NOTES.s()).v("multiple items deleted.");
+                }
+                mGModel.listFolder(mCurrentFolder.folder, new GoogleApiModel.ListFolderCallback() {
+                    @Override
+                    public void callback(GoogleApiModel.FolderInfo info) {
+                        mCurrentFolder=info;
+                        requestUpdate();
+                    }
+                });
+            }
+        });
     }
 }
