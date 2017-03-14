@@ -284,7 +284,13 @@ public class FragmentNotesList extends Fragment implements OffRecordMainActivity
 
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-
+            GoogleApiModel.ItemInfo item = mNotesListAdapter.getItem(position);
+            if (item.meta.isFolder()){
+                // go into folder
+                mNotesSource.gotoFolder(item);
+            }else{
+                // edit the item
+            }
         }
     }
 

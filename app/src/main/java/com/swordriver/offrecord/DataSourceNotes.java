@@ -135,6 +135,18 @@ public class DataSourceNotes {
         }
     }
 
+    synchronized public void gotoFolder(GoogleApiModel.ItemInfo folder){
+        if (mGModel!=null && mCurrentFolder!=null){
+            mGModel.listFolder(folder.meta.getDriveId().asDriveFolder(), new GoogleApiModel.ListFolderCallback() {
+                @Override
+                public void callback(GoogleApiModel.FolderInfo info) {
+                    mCurrentFolder=info;
+                    requestUpdate();
+                }
+            });
+        }
+    }
+
     synchronized public void deleteItems(Set<Integer> selections){
         Deque<DriveId> items = new ArrayDeque<>();
         for (Integer selection : selections){
