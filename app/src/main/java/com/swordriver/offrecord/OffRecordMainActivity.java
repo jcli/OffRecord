@@ -133,7 +133,17 @@ public class OffRecordMainActivity extends AppCompatActivity
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {
-            super.onBackPressed();
+            //process fragment back stack first
+            FragmentBackStackPressed currentFragment = (FragmentBackStackPressed) mPagerAdapter.getItem(mViewPager.getCurrentItem());
+            if (!currentFragment.onBackPressed()) {
+                int count = getFragmentManager().getBackStackEntryCount();
+                if (count == 0) {
+                    super.onBackPressed();
+                    //additional code
+                } else {
+                    getFragmentManager().popBackStack();
+                }
+            }
         }
     }
 

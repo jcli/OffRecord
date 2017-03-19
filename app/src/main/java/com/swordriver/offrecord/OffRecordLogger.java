@@ -32,7 +32,7 @@ public class OffRecordLogger {
             if (BuildConfig.DEBUG) {
                 // connect Orhanobut
                 Logger.init()
-                        .methodCount(1)                 // default 2
+                        .methodCount(2)                 // default 2
                         .methodOffset(4)                // default 0
                         .hideThreadInfo();               // default shown
 

@@ -13,9 +13,10 @@ import timber.log.Timber;
  * Created by jcli on 1/22/17.
  */
 
-public class FragmentNotes extends Fragment {
+public class FragmentNotes extends Fragment implements FragmentBackStackPressed{
 
     private FragmentNotesList mFragmentNotesList;
+    //private FragmentNotesDetails mFragmentNotesList;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -25,14 +26,29 @@ public class FragmentNotes extends Fragment {
         FragmentTransaction transaction = getChildFragmentManager().beginTransaction();
         Fragment fragment = (getChildFragmentManager().findFragmentById(R.id.notes_child_fragment));
         if (fragment!=null){
-
+            // just leave it.
         }else{
             if (mFragmentNotesList==null){
                 mFragmentNotesList = new FragmentNotesList();
+                //mFragmentNotesList = new FragmentNotesDetails();
             }
             transaction.replace(R.id.notes_child_fragment, mFragmentNotesList).commit();
         }
 
         return rootView;
+    }
+
+    ///////////////////////////////////////////////////////////////////////////////////////
+    // callback and interfaces
+    ///////////////////////////////////////////////////////////////////////////////////////
+
+    @Override
+    public boolean onBackPressed() {
+        FragmentBackStackPressed child = (FragmentBackStackPressed) getChildFragmentManager().findFragmentById(R.id.notes_child_fragment);
+        if (child!=null) {
+            return child.onBackPressed();
+        }else{
+            return false;
+        }
     }
 }

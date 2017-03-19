@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.text.InputType;
@@ -25,6 +26,7 @@ import timber.log.Timber;
 
 import com.swordriver.offrecord.JCLogger.LogAreas;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -37,7 +39,7 @@ import static android.view.View.VISIBLE;
  * Created by jcli on 1/23/17.
  */
 
-public class FragmentNotesList extends Fragment implements OffRecordMainActivity.ControllerServiceInterface, DataSourceNotes.NotesCallback{
+public class FragmentNotesList extends Fragment implements OffRecordMainActivity.ControllerServiceInterface, DataSourceNotes.NotesCallback, FragmentBackStackPressed{
 
     private DataSourceNotes mNotesSource;
     private AlertDialog mAddNoteDialog;
@@ -81,7 +83,7 @@ public class FragmentNotesList extends Fragment implements OffRecordMainActivity
         OffRecordMainActivity activity = (OffRecordMainActivity) getActivity();
         activity.removeServiceListener(this);
         if (mAddNoteDialog!=null) mAddNoteDialog.cancel();
-        if (mNotesSource!=null) mNotesSource.removeListner();
+        if (mNotesSource!=null) mNotesSource.removeListner(this);
     }
 
     private class NotesListAdapter extends ArrayAdapter<GoogleApiModel.ItemInfo> {
@@ -129,6 +131,17 @@ public class FragmentNotesList extends Fragment implements OffRecordMainActivity
             mNotesListAdapter.clear();
             mNotesListAdapter.addAll(notes.items);
         }
+    }
+
+    @Override
+    public void updateNoteDetail(List<String> content) {
+
+    }
+
+    @Override
+    public boolean onBackPressed() {
+        Timber.tag(LogAreas.SECURE_NOTES.s()).v("back pressed.");
+        return mNotesSource.goUp();
     }
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -287,9 +300,13 @@ public class FragmentNotesList extends Fragment implements OffRecordMainActivity
             GoogleApiModel.ItemInfo item = mNotesListAdapter.getItem(position);
             if (item.meta.isFolder()){
                 // go into folder
-                mNotesSource.gotoFolder(item);
+                mNotesSource.gotoFolder(item.meta.getDriveId().asDriveFolder());
             }else{
                 // edit the item
+                FragmentTransaction transaction = getParentFragment().getChildFragmentManager().beginTransaction();
+                FragmentNotesDetails details = new FragmentNotesDetails();
+                details.setNoteIndex(position);
+                transaction.replace(R.id.notes_child_fragment, details).addToBackStack(null).commit();
             }
         }
     }
