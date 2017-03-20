@@ -16,7 +16,6 @@ import timber.log.Timber;
 public class FragmentNotes extends Fragment implements FragmentBackStackPressed{
 
     private FragmentNotesList mFragmentNotesList;
-    //private FragmentNotesDetails mFragmentNotesList;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -30,7 +29,6 @@ public class FragmentNotes extends Fragment implements FragmentBackStackPressed{
         }else{
             if (mFragmentNotesList==null){
                 mFragmentNotesList = new FragmentNotesList();
-                //mFragmentNotesList = new FragmentNotesDetails();
             }
             transaction.replace(R.id.notes_child_fragment, mFragmentNotesList).commit();
         }

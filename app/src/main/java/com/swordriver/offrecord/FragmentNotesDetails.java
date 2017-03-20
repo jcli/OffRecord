@@ -54,15 +54,23 @@ public class FragmentNotesDetails extends Fragment implements OffRecordMainActiv
 
     @Override
     public void onPause(){
+        Timber.tag(LogAreas.LIFECYCLE.s()).v("called.");
+        if (activeLineEditText!=null &&
+                !mNoteDetailAdapter.getItem(activeLineIndex)
+                        .equals(activeLineEditText.getText().toString())){
+            mNoteDetailAdapter.setItem(activeLineIndex, activeLineEditText.getText().toString());
+            mNotesSource.writeNote(mNoteIndex, mNoteDetailAdapter.getList());
+            activeLineEditText.setOnFocusChangeListener(null);
+        }
+        OffRecordMainActivity activity = (OffRecordMainActivity) getActivity();
+        activity.removeServiceListener(this);
+        if (mNotesSource!=null) mNotesSource.removeListner(this);
         super.onPause();
     }
 
     @Override
     public void onStop(){  // do all clean up here
         super.onStop();
-        OffRecordMainActivity activity = (OffRecordMainActivity) getActivity();
-        activity.removeServiceListener(this);
-        if (mNotesSource!=null) mNotesSource.removeListner(this);
     }
 
     //////////////////////////////////////////////////////////////////////////////////////////
@@ -87,9 +95,6 @@ public class FragmentNotesDetails extends Fragment implements OffRecordMainActiv
     @Override
     public void updateNoteDetail(List<String> content) {
         Timber.tag(LogAreas.SECURE_NOTES.s()).v("called.");
-        for (String item : content){
-            Timber.tag(LogAreas.SECURE_NOTES.s()).v("line %s ", item);
-        }
         if (mNoteDetailAdapter!=null){
             mNoteDetailAdapter.clear();
             mNoteDetailAdapter.addAll(content);
@@ -148,6 +153,9 @@ public class FragmentNotesDetails extends Fragment implements OffRecordMainActiv
     private int mNoteIndex=0;
     private DataSourceNotes mNotesSource;
 
+    private int activeLineIndex;
+    private EditText activeLineEditText;
+
     private static Timber.Tree Trace(){
         return Timber.tag(LogAreas.SECURE_NOTES.s());
     }
@@ -163,12 +171,6 @@ public class FragmentNotesDetails extends Fragment implements OffRecordMainActiv
             mContent = objects;
         }
 
-//        public NoteDetailAdapter(Context context, int resource) {
-//            super(context, resource);
-//            mContext = context;
-//            mResource = resource;
-//        }
-
         @Override
         public View getView(final int position, View convertView, ViewGroup parent) {
             LayoutInflater inflater = ((Activity) mContext).getLayoutInflater();
@@ -181,17 +183,27 @@ public class FragmentNotesDetails extends Fragment implements OffRecordMainActiv
                     // try to match original
                     if (!hasFocus && !getItem(position).equals(lineEdit.getText().toString())) {
                         // line changed, write back to
-                        mContent.set(position, lineEdit.getText().toString());
+                        setItem(position, lineEdit.getText().toString());
                         mNotesSource.writeNote(mNoteIndex, mContent);
                         lineEdit.setOnFocusChangeListener(null);
                     }
 
                     if (hasFocus){
                         //mark this view.  Need to check data changed onPause.
+                        activeLineIndex=position;
+                        activeLineEditText=lineEdit;
                     }
                 }
             });
             return row;
+        }
+
+        public void setItem(int position, String line){
+            mContent.set(position, line);
+        }
+
+        public List<String> getList(){
+            return mContent;
         }
     }
 

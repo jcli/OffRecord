@@ -91,12 +91,12 @@ public class DataSourceNotes {
             });
             mListner.updateListView(mCurrentFolder);
         }else{
-            Timber.tag(LogAreas.SECURE_NOTES.s()).v("no listner");
+            Trace().v("no listner");
         }
     }
 
     synchronized public void init(GoogleApiModel gmodel){
-        Timber.tag(LogAreas.SECURE_NOTES.s()).v("called.");
+        Trace().v("called.");
         mGModel = gmodel;
         mGModel.listFolder(mGModel.getAppRootFolder(), new GoogleApiModel.ListFolderCallback(){
             private void processRoot(GoogleApiModel.FolderInfo info){
@@ -111,7 +111,7 @@ public class DataSourceNotes {
                 for (GoogleApiModel.ItemInfo item : info.items){
                     if (item.readableTitle.equals(SECURE_NOTE_ROOT) && item.meta.isFolder()){
                         // found note folder
-                        Timber.tag(LogAreas.SECURE_NOTES.s()).v("Found the Notes folder");
+                        Trace().v("Found the Notes folder");
                         mGModel.listFolder(item.meta.getDriveId().asDriveFolder(), new GoogleApiModel.ListFolderCallback() {
                             @Override
                             public void callback(GoogleApiModel.FolderInfo info) {
@@ -121,7 +121,7 @@ public class DataSourceNotes {
                         return;
                     }
                 }
-                Timber.tag(LogAreas.SECURE_NOTES.s()).v("Creating the Notes folder");
+                Trace().v("Creating the Notes folder");
                 mGModel.createFolderInFolder(SECURE_NOTE_ROOT, mGModel.getAppRootFolder(), true, new GoogleApiModel.ListFolderCallback() {
                     @Override
                     public void callback(GoogleApiModel.FolderInfo info) {
@@ -187,7 +187,7 @@ public class DataSourceNotes {
             @Override
             public void onResult(@NonNull Status status) {
                 if (status.isSuccess()) {
-                    Timber.tag(LogAreas.SECURE_NOTES.s()).v("multiple items deleted.");
+                    Trace().v("multiple items deleted.");
                 }
                 mGModel.listFolder(mCurrentFolder.folder, new GoogleApiModel.ListFolderCallback() {
                     @Override
@@ -208,8 +208,8 @@ public class DataSourceNotes {
                 Type collectionType = new TypeToken<ArrayList<String>>(){}.getType();
                 ArrayList<String> content = TheGson.getGson().fromJson(fileContent, collectionType);
                 if (content==null)content = new ArrayList<String>();
-                if (content.size()<1 || !content.get(content.size()-1).equals("...")){
-                    content.add("...");
+                if (content.size()<1 || !content.get(content.size()-1).equals("")){
+                    content.add("");
                 }
                 if (mListner!=null) mListner.updateNoteDetail(content);
             }
