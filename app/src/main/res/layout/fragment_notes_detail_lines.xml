@@ -5,6 +5,28 @@
     <EditText
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:id="@+id/note_detail_line"/>
+        android:layout_centerVertical="true"
+        android:layout_alignParentLeft="true"
+        android:paddingLeft="8dp"
+        android:id="@+id/note_detail_line"
+        android:layout_toStartOf="@+id/delete_line_button" />
 
+    <ImageButton
+        android:id="@+id/copy_line_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:layout_marginRight="5dp"
+        android:src="@android:drawable/ic_menu_share"
+        />
+
+    <ImageButton
+        android:id="@+id/delete_line_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toLeftOf="@id/copy_line_button"
+        android:layout_centerVertical="true"
+        android:layout_marginRight="10dp"
+        android:src="@android:drawable/ic_menu_delete"/>
 </RelativeLayout>
