@@ -218,11 +218,6 @@ public class DataSourceNotes {
                 Type collectionType = new TypeToken<ArrayList<NoteItem>>(){}.getType();
                 ArrayList<NoteItem> content = TheGson.getGson().fromJson(fileContent, collectionType);
                 if (content==null)content = new ArrayList<NoteItem>();
-                if (content.size()<1 || !content.get(content.size()-1).line.equals("")){
-                    content.add(new NoteItem(""));
-                }
-//                mCachedContent = content;
-//                mCachedContentInfo = itemInfo;
                 if (mListner!=null) mListner.updateNoteDetail(content);
             }
         });

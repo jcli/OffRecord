@@ -9,6 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ListView;
@@ -33,11 +34,10 @@ public class FragmentNotesDetails extends Fragment implements OffRecordMainActiv
         View rootView = inflater.inflate(R.layout.fragment_notes_detail, container, false);
         mNoteDetailAdapter = new NoteDetailAdapter(getActivity(), R.layout.fragment_notes_detail_lines,
                 new ArrayList<DataSourceNotes.NoteItem>());
-//        mNoteDetailAdapter = new NoteDetailAdapter(getActivity(), R.layout.fragment_notes_detail_lines);
         ListView noteDetailView = (ListView) rootView.findViewById(R.id.notesDetailListView);
         noteDetailView.setAdapter(mNoteDetailAdapter);
-        //noteDetailView.setOnItemLongClickListener(new LineLongClick());
-//        noteDetailView.setOnItemClickListener(new LineClick());
+        Button newLineButton = (Button) rootView.findViewById(R.id.notesDetailNewLine);
+        newLineButton.setOnClickListener(new NewLineButtonClick());
         return rootView;
     }
 
@@ -57,13 +57,6 @@ public class FragmentNotesDetails extends Fragment implements OffRecordMainActiv
     @Override
     public void onPause(){
         Timber.tag(LogAreas.LIFECYCLE.s()).v("called.");
-//        if (activeLineEditText!=null &&
-//                !mNoteDetailAdapter.getItem(activeLineIndex)
-//                        .equals(activeLineEditText.getText().toString())){
-//            mNoteDetailAdapter.setItem(activeLineIndex, activeLineEditText.getText().toString());
-
-//            activeLineEditText.setOnFocusChangeListener(null);
-//        }
         mNotesSource.writeNote(mNoteIndex, mNoteDetailAdapter.getList());
         OffRecordMainActivity activity = (OffRecordMainActivity) getActivity();
         activity.removeServiceListener(this);
@@ -152,7 +145,6 @@ public class FragmentNotesDetails extends Fragment implements OffRecordMainActiv
     //////////////////////////////////////////////////////////////////////////////////////////
 
     private NoteDetailAdapter mNoteDetailAdapter;
-    //private ArrayList<String> mContent=new ArrayList<>();
     private int mNoteIndex=0;
     private DataSourceNotes mNotesSource;
 
@@ -187,12 +179,6 @@ public class FragmentNotesDetails extends Fragment implements OffRecordMainActiv
             mContent = objects;
         }
 
-//        public NoteDetailAdapter(Context context, int resource) {
-//            super(context, resource);
-//            mContext = context;
-//            mResource = resource;
-//        }
-
         @Override
         public View getView(final int position, View convertView, ViewGroup parent) {
             LayoutInflater inflater = ((Activity) mContext).getLayoutInflater();
@@ -212,14 +198,8 @@ public class FragmentNotesDetails extends Fragment implements OffRecordMainActiv
                     EditText currentEditText = (EditText) v;
                     // try to match original
                     if (!hasFocus && !tag.item.line.equals(currentEditText.getText().toString())) {
-                        // line changed, write back to
+                        // line changed
                         tag.item.line = currentEditText.getText().toString();
-                        // see if I need a new line
-                        if (!getItem(getCount()-1).line.equals("")){
-                            Trace().v("Adding a new line.");
-                            mNoteDetailAdapter.add(new DataSourceNotes.NoteItem(""));
-                            mNoteDetailAdapter.notifyDataSetChanged();
-                        }
                     }
                 }
             });
@@ -230,10 +210,6 @@ public class FragmentNotesDetails extends Fragment implements OffRecordMainActiv
                 public void onClick(View v) {
                     ViewTag tag = (ViewTag) v.getTag();
                     remove(tag.item);
-                    if (!getItem(getCount()-1).line.equals("")) {
-                        Trace().v("Adding a new line.");
-                        mNoteDetailAdapter.add(new DataSourceNotes.NoteItem(""));
-                    }
                     mNoteDetailAdapter.notifyDataSetChanged();
                 }
             });
@@ -245,4 +221,13 @@ public class FragmentNotesDetails extends Fragment implements OffRecordMainActiv
         }
     }
 
+    private class NewLineButtonClick implements View.OnClickListener {
+
+        @Override
+        public void onClick(View v) {
+            if (mNoteDetailAdapter!=null){
+                mNoteDetailAdapter.add(new DataSourceNotes.NoteItem(""));
+            }
+        }
+    }
 }
