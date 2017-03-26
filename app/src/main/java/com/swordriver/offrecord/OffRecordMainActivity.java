@@ -343,8 +343,12 @@ public class OffRecordMainActivity extends AppCompatActivity
                 mGoogleApiModel.deleteEverythingInAppRoot(new ResultCallback<Status>() {
                     @Override
                     public void onResult(@NonNull Status status) {
-                        mGoogleApiModel.clearPasswordValidationData();
-                        newPasswordPrompt();
+                        if (status.isSuccess()) {
+                            mGoogleApiModel.clearPasswordValidationData();
+                            newPasswordPrompt();
+                        }else{
+                            Timber.tag(LogAreas.GOOGLEAPI.s()).e("delete everything failed!! %d, %s", status.getStatusCode(), status.getStatusMessage());
+                        }
                     }
                 });
             }
