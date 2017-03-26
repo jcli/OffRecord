@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -31,11 +32,12 @@ public class FragmentNotesDetails extends Fragment implements OffRecordMainActiv
         Timber.tag(LogAreas.LIFECYCLE.s()).v("called.");
         View rootView = inflater.inflate(R.layout.fragment_notes_detail, container, false);
         mNoteDetailAdapter = new NoteDetailAdapter(getActivity(), R.layout.fragment_notes_detail_lines,
-                new ArrayList<String>());
+                new ArrayList<DataSourceNotes.NoteItem>());
+//        mNoteDetailAdapter = new NoteDetailAdapter(getActivity(), R.layout.fragment_notes_detail_lines);
         ListView noteDetailView = (ListView) rootView.findViewById(R.id.notesDetailListView);
         noteDetailView.setAdapter(mNoteDetailAdapter);
         //noteDetailView.setOnItemLongClickListener(new LineLongClick());
-        noteDetailView.setOnItemClickListener(new LineClick());
+//        noteDetailView.setOnItemClickListener(new LineClick());
         return rootView;
     }
 
@@ -55,13 +57,14 @@ public class FragmentNotesDetails extends Fragment implements OffRecordMainActiv
     @Override
     public void onPause(){
         Timber.tag(LogAreas.LIFECYCLE.s()).v("called.");
-        if (activeLineEditText!=null &&
-                !mNoteDetailAdapter.getItem(activeLineIndex)
-                        .equals(activeLineEditText.getText().toString())){
-            mNoteDetailAdapter.setItem(activeLineIndex, activeLineEditText.getText().toString());
-            mNotesSource.writeNote(mNoteIndex, mNoteDetailAdapter.getList());
-            activeLineEditText.setOnFocusChangeListener(null);
-        }
+//        if (activeLineEditText!=null &&
+//                !mNoteDetailAdapter.getItem(activeLineIndex)
+//                        .equals(activeLineEditText.getText().toString())){
+//            mNoteDetailAdapter.setItem(activeLineIndex, activeLineEditText.getText().toString());
+
+//            activeLineEditText.setOnFocusChangeListener(null);
+//        }
+        mNotesSource.writeNote(mNoteIndex, mNoteDetailAdapter.getList());
         OffRecordMainActivity activity = (OffRecordMainActivity) getActivity();
         activity.removeServiceListener(this);
         if (mNotesSource!=null) mNotesSource.removeListner(this);
@@ -93,7 +96,7 @@ public class FragmentNotesDetails extends Fragment implements OffRecordMainActiv
     }
 
     @Override
-    public void updateNoteDetail(List<String> content) {
+    public void updateNoteDetail(List<DataSourceNotes.NoteItem> content) {
         Timber.tag(LogAreas.SECURE_NOTES.s()).v("called.");
         if (mNoteDetailAdapter!=null){
             mNoteDetailAdapter.clear();
@@ -160,49 +163,84 @@ public class FragmentNotesDetails extends Fragment implements OffRecordMainActiv
         return Timber.tag(LogAreas.SECURE_NOTES.s());
     }
 
-    private class NoteDetailAdapter extends ArrayAdapter<String> {
+    private class NoteDetailAdapter extends ArrayAdapter<DataSourceNotes.NoteItem> {
         private int mResource;
         private Context mContext;
-        private List<String> mContent;
-        public NoteDetailAdapter(Context context, int resource, List<String> objects) {
+        private List<DataSourceNotes.NoteItem> mContent;
+        private class ViewTag {
+            DataSourceNotes.NoteItem item;
+            EditText editText;
+            ImageButton deleteButton;
+            ImageButton copyButton;
+            public ViewTag(DataSourceNotes.NoteItem i, EditText e, ImageButton d, ImageButton c){
+                item = i;
+                editText = e;
+                deleteButton = d;
+                copyButton = c;
+            }
+        }
+
+        public NoteDetailAdapter(Context context, int resource, List<DataSourceNotes.NoteItem> objects) {
             super(context, resource, objects);
             mContext = context;
             mResource = resource;
             mContent = objects;
         }
 
+//        public NoteDetailAdapter(Context context, int resource) {
+//            super(context, resource);
+//            mContext = context;
+//            mResource = resource;
+//        }
+
         @Override
         public View getView(final int position, View convertView, ViewGroup parent) {
             LayoutInflater inflater = ((Activity) mContext).getLayoutInflater();
             View row = inflater.inflate(mResource, parent, false);
-            final EditText lineEdit = (EditText) row.findViewById(R.id.note_detail_line);
-            lineEdit.setText(getItem(position));
+            EditText lineEdit = (EditText) row.findViewById(R.id.note_detail_line);
+            ImageButton deleteButton = (ImageButton) row.findViewById(R.id.delete_line_button);
+            ImageButton copyButton = (ImageButton) row.findViewById(R.id.copy_line_button);
+            ViewTag currentViewTag = new ViewTag(getItem(position), lineEdit, deleteButton, copyButton);
+
+            lineEdit.setText(getItem(position).line);
+            lineEdit.setTag(currentViewTag);
+            lineEdit.setBackground(null);
             lineEdit.setOnFocusChangeListener(new View.OnFocusChangeListener() {
                 @Override
                 public void onFocusChange(View v, boolean hasFocus) {
+                    ViewTag tag = (ViewTag) v.getTag();
+                    EditText currentEditText = (EditText) v;
                     // try to match original
-                    if (!hasFocus && !getItem(position).equals(lineEdit.getText().toString())) {
+                    if (!hasFocus && !tag.item.line.equals(currentEditText.getText().toString())) {
                         // line changed, write back to
-                        setItem(position, lineEdit.getText().toString());
-                        mNotesSource.writeNote(mNoteIndex, mContent);
-                        lineEdit.setOnFocusChangeListener(null);
+                        tag.item.line = currentEditText.getText().toString();
+                        // see if I need a new line
+                        if (!getItem(getCount()-1).line.equals("")){
+                            Trace().v("Adding a new line.");
+                            mNoteDetailAdapter.add(new DataSourceNotes.NoteItem(""));
+                            mNoteDetailAdapter.notifyDataSetChanged();
+                        }
                     }
+                }
+            });
 
-                    if (hasFocus){
-                        //mark this view.  Need to check data changed onPause.
-                        activeLineIndex=position;
-                        activeLineEditText=lineEdit;
+            deleteButton.setTag(currentViewTag);
+            deleteButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    ViewTag tag = (ViewTag) v.getTag();
+                    remove(tag.item);
+                    if (!getItem(getCount()-1).line.equals("")) {
+                        Trace().v("Adding a new line.");
+                        mNoteDetailAdapter.add(new DataSourceNotes.NoteItem(""));
                     }
+                    mNoteDetailAdapter.notifyDataSetChanged();
                 }
             });
             return row;
         }
 
-        public void setItem(int position, String line){
-            mContent.set(position, line);
-        }
-
-        public List<String> getList(){
+        public List<DataSourceNotes.NoteItem> getList(){
             return mContent;
         }
     }

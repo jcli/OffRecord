@@ -13,13 +13,13 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.Timer;
+import java.util.concurrent.ThreadLocalRandom;
 
 import swordriver.com.googledrivemodule.GoogleApiModel;
 import timber.log.Timber;
 
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.Status;
-import com.google.android.gms.common.server.converter.StringToIntConverter;
 import com.google.android.gms.drive.DriveFolder;
 import com.google.android.gms.drive.DriveId;
 import com.google.android.gms.drive.Metadata;
@@ -34,9 +34,16 @@ public class DataSourceNotes {
 
     public interface NotesCallback{
         void updateListView (GoogleApiModel.FolderInfo notes);
-        void updateNoteDetail (List<String> content);
+        void updateNoteDetail (List<NoteItem> content);
     }
     private NotesCallback mListner;
+
+    public static class NoteItem{
+        public String line;
+        public NoteItem(String l){
+            line = l;
+        }
+    }
 
     /////////////////////////////////////////////////////////
     // private APIs
@@ -45,6 +52,8 @@ public class DataSourceNotes {
     private GoogleApiModel mGModel;
     private GoogleApiModel.FolderInfo mNoteRoot;
     private GoogleApiModel.FolderInfo mCurrentFolder;
+//    private List<NoteItem> mCachedContent;
+//    private GoogleApiModel.ItemInfo mCachedContentInfo;
 
     private boolean isValidFile(int itemIndex){
         if (mGModel==null || mCurrentFolder==null) return false;
@@ -202,22 +211,39 @@ public class DataSourceNotes {
 
     synchronized public void readNote(int itemIndex){
         if (!isValidFile(itemIndex)) return;
-        mGModel.readTxtFile(mCurrentFolder.items[itemIndex], new GoogleApiModel.ReadTxtFileCallback() {
+        final GoogleApiModel.ItemInfo itemInfo = mCurrentFolder.items[itemIndex];
+        mGModel.readTxtFile(itemInfo, new GoogleApiModel.ReadTxtFileCallback() {
             @Override
             public void callback(String fileContent) {
-                Type collectionType = new TypeToken<ArrayList<String>>(){}.getType();
-                ArrayList<String> content = TheGson.getGson().fromJson(fileContent, collectionType);
-                if (content==null)content = new ArrayList<String>();
-                if (content.size()<1 || !content.get(content.size()-1).equals("")){
-                    content.add("");
+                Type collectionType = new TypeToken<ArrayList<NoteItem>>(){}.getType();
+                ArrayList<NoteItem> content = TheGson.getGson().fromJson(fileContent, collectionType);
+                if (content==null)content = new ArrayList<NoteItem>();
+                if (content.size()<1 || !content.get(content.size()-1).line.equals("")){
+                    content.add(new NoteItem(""));
                 }
+//                mCachedContent = content;
+//                mCachedContentInfo = itemInfo;
                 if (mListner!=null) mListner.updateNoteDetail(content);
             }
         });
     }
 
-    synchronized public void writeNote(final int itemIndex, final List<String> content){
+    synchronized public void writeNote(final int itemIndex, final List<NoteItem> content){
         if (!isValidFile(itemIndex)) return;
+        // check against the cache to see if content changed.
+//        if (mCachedContentInfo!=null && mCachedContentInfo.equals(mCurrentFolder.items[itemIndex])
+//                && mCachedContent!=null && mCachedContent.size()==content.size()){
+//            boolean mismatch=false;
+//            for (int i=0; i<content.size(); i++){
+//                Trace().v("cached: %s, matching: %s", mCachedContent.get(i).line, content.get(i).line);
+//                if (!mCachedContent.get(i).line.equals(content.get(i).line)){
+//                    mismatch=true;
+//                    Trace().v("found mismatched content.");
+//                    break;
+//                }
+//            }
+//            if (!mismatch) return;
+//        }
         String contentStr = TheGson.getGson().toJson(content);
         mGModel.writeTxtFile(mCurrentFolder.items[itemIndex], contentStr, new GoogleApiModel.WriteTxtFileCallback() {
             @Override
@@ -230,7 +256,6 @@ public class DataSourceNotes {
                 }
                 readNote(itemIndex);
             }
-
         });
     }
 

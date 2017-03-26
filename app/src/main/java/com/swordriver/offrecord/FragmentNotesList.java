@@ -134,7 +134,7 @@ public class FragmentNotesList extends Fragment implements OffRecordMainActivity
     }
 
     @Override
-    public void updateNoteDetail(List<String> content) {
+    public void updateNoteDetail(List<DataSourceNotes.NoteItem> content) {
 
     }
 
