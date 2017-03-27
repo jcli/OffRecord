@@ -31,6 +31,7 @@ import android.widget.TextView;
 
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.Status;
+import com.google.android.gms.tagmanager.TagManager;
 import com.swordriver.offrecord.JCLogger.LogAreas;
 
 import java.util.HashSet;
@@ -98,6 +99,8 @@ public class OffRecordMainActivity extends AppCompatActivity
         // see if password timeout have passed.
         if (System.currentTimeMillis()-TIMEOUT_DURATION>mLastActiveTime){
             mCachedPassword=null;
+            if (mGoogleApiModel!=null) mGoogleApiModel.clearPassword();
+            Timber.tag(LogAreas.UI.s()).w("clearing cached password.");
         }
 
         // start background serivce
@@ -172,11 +175,16 @@ public class OffRecordMainActivity extends AppCompatActivity
 
         //noinspection SimplifiableIfStatement
         switch (id){
+            case (R.id.action_enter_pass):
+                Timber.tag(LogAreas.UI.s()).v("enter password clicked.");
+                passwordPrompt();
+                break;
             case (R.id.action_change_pass):
                 Timber.tag(LogAreas.UI.s()).v("change password clicked.");
                 break;
             case (R.id.action_reset_account):
                 Timber.tag(LogAreas.UI.s()).v("account reset clicked.");
+                resetAccount();
                 break;
             default:
 
@@ -325,7 +333,7 @@ public class OffRecordMainActivity extends AppCompatActivity
     }
 
     private void passwordPrompt() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(OffRecordMainActivity.this);
+        final AlertDialog.Builder builder = new AlertDialog.Builder(OffRecordMainActivity.this);
         builder.setTitle("Enter Password");
         final EditText password = new EditText(OffRecordMainActivity.this);
         password.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
@@ -344,29 +352,30 @@ public class OffRecordMainActivity extends AppCompatActivity
                 }
             }
         });
-        builder.setNeutralButton("Reset Account", new DialogInterface.OnClickListener(){
+        builder.setNeutralButton("cancel", new DialogInterface.OnClickListener(){
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                mGoogleApiModel.deleteEverythingInAppRoot(new ResultCallback<Status>() {
-                    @Override
-                    public void onResult(@NonNull Status status) {
-                        if (status.isSuccess()) {
-                            mGoogleApiModel.clearPasswordValidationData();
-                            newPasswordPrompt();
-                        }else{
-                            Timber.tag(LogAreas.GOOGLEAPI.s()).e("delete everything failed!! %d, %s", status.getStatusCode(), status.getStatusMessage());
-                        }
-                    }
-                });
-            }
-        });
-        builder.setOnCancelListener(new DialogInterface.OnCancelListener() {
-            @Override
-            public void onCancel(DialogInterface dialog) {
+                // not initialized.
+                Timber.tag(LogAreas.UI.s()).w("set password cancelled");
+                mGoogleApiModel.clearPassword();
             }
         });
         mPassDialog = builder.show();
         mPassDialog.setCanceledOnTouchOutside(false);
+    }
+
+    private void resetAccount(){
+        mGoogleApiModel.deleteEverythingInAppRoot(new ResultCallback<Status>() {
+            @Override
+            public void onResult(@NonNull Status status) {
+                if (status.isSuccess()) {
+                    mGoogleApiModel.clearPasswordValidationData();
+                    newPasswordPrompt();
+                }else{
+                    Timber.tag(LogAreas.GOOGLEAPI.s()).e("delete everything failed!! %d, %s", status.getStatusCode(), status.getStatusMessage());
+                }
+            }
+        });
     }
 
     private void setUserName(){

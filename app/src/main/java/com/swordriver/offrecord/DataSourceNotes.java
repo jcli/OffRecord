@@ -13,6 +13,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.Timer;
+import java.util.concurrent.PriorityBlockingQueue;
 import java.util.concurrent.ThreadLocalRandom;
 
 import swordriver.com.googledrivemodule.GoogleApiModel;
@@ -62,6 +63,17 @@ public class DataSourceNotes {
         return true;
     }
 
+    private void updateWithEmpty(){
+        if (mListner!=null) {
+            GoogleApiModel.FolderInfo info = new GoogleApiModel.FolderInfo();
+            info.items = new GoogleApiModel.ItemInfo[0];
+            mListner.updateListView(info);
+        }else{
+            Trace().v("no listner");
+        }
+
+    }
+
     private static Timber.Tree Trace(){
         return Timber.tag(LogAreas.SECURE_NOTES.s());
     }
@@ -107,6 +119,12 @@ public class DataSourceNotes {
     synchronized public void init(GoogleApiModel gmodel){
         Trace().v("called.");
         mGModel = gmodel;
+        if (mGModel.getStatus()!= GoogleApiModel.GoogleApiStatus.INITIALIZED){
+            mCurrentFolder=null;
+            mNoteRoot=null;
+            updateWithEmpty();
+            return;
+        }
         mGModel.listFolder(mGModel.getAppRootFolder(), new GoogleApiModel.ListFolderCallback(){
             private void processRoot(GoogleApiModel.FolderInfo info){
                 if (info!=null) mNoteRoot = info;
