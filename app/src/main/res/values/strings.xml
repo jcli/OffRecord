@@ -4,7 +4,9 @@
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
 
-    <string name="action_settings">Settings</string>
-    <string name="action_about">About</string>
+    <string name="string_settings">Settings</string>
+    <string name="string_about">About</string>
+    <string name="string_change_pass">Change Password</string>
+    <string name="string_reset_account">Reset Account</string>
     <string name="server_client_id">177766156622-21ko8nnqkhtdg7tvl17gefjqtnmc74ai.apps.googleusercontent.com</string>
 </resources>

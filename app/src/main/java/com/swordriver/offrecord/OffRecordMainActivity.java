@@ -171,8 +171,15 @@ public class OffRecordMainActivity extends AppCompatActivity
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+        switch (id){
+            case (R.id.action_change_pass):
+                Timber.tag(LogAreas.UI.s()).v("change password clicked.");
+                break;
+            case (R.id.action_reset_account):
+                Timber.tag(LogAreas.UI.s()).v("account reset clicked.");
+                break;
+            default:
+
         }
 
         return super.onOptionsItemSelected(item);
