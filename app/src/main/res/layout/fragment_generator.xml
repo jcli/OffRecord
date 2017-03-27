@@ -3,18 +3,31 @@
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <!--<FrameLayout-->
-        <!--android:id="@+id/generator_child_fragment"-->
-        <!--android:layout_width="fill_parent"-->
-        <!--android:layout_height="fill_parent" />-->
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_alignParentLeft="true"
+        android:paddingLeft="8dp"
+        android:id="@+id/generated_password_edittext"
+        android:layout_toStartOf="@+id/copy_generated_password_button" />
 
-    <TextView
+    <ImageButton
+        android:id="@+id/copy_generated_password_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Under Development (generator)"
-        android:id="@+id/generator_title"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="20dp" />
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:layout_marginRight="5dp"
+        android:src="@android:drawable/ic_menu_share"
+        />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Generate Password"
+        android:id="@+id/generate_password_button"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true" />
 
 </RelativeLayout>
