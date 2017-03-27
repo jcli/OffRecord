@@ -1,6 +1,8 @@
 package com.swordriver.offrecord;
 
 import android.app.Activity;
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -211,6 +213,18 @@ public class FragmentNotesDetails extends Fragment implements OffRecordMainActiv
                     ViewTag tag = (ViewTag) v.getTag();
                     remove(tag.item);
                     mNoteDetailAdapter.notifyDataSetChanged();
+                }
+            });
+
+            copyButton.setTag(currentViewTag);
+            copyButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    ViewTag tag = (ViewTag) v.getTag();
+                    ClipboardManager clipboard = (ClipboardManager) getActivity().getSystemService(Context.CLIPBOARD_SERVICE);
+                    String name = getActivity().getString(R.string.app_name);
+                    ClipData clip = ClipData.newPlainText(name, tag.editText.getText().toString());
+                    clipboard.setPrimaryClip(clip);
                 }
             });
             return row;
