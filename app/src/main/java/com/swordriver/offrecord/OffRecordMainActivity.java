@@ -181,6 +181,7 @@ public class OffRecordMainActivity extends AppCompatActivity
                 break;
             case (R.id.action_change_pass):
                 Timber.tag(LogAreas.UI.s()).v("change password clicked.");
+                newPasswordPrompt(true);
                 break;
             case (R.id.action_reset_account):
                 Timber.tag(LogAreas.UI.s()).v("account reset clicked.");
@@ -289,7 +290,7 @@ public class OffRecordMainActivity extends AppCompatActivity
     private TabLayout mTabLayout;
     private OffRecordPagerAdapter mPagerAdapter;
 
-    private void newPasswordPrompt() {
+    private void newPasswordPrompt(final boolean changePassword) {
         LinearLayout passLayout = new LinearLayout(OffRecordMainActivity.this);
         passLayout.setOrientation(LinearLayout.VERTICAL);
         final EditText password = new EditText(OffRecordMainActivity.this);
@@ -311,16 +312,24 @@ public class OffRecordMainActivity extends AppCompatActivity
             public void onClick(DialogInterface dialog, int which) {
                 // check if password match each other
                 String pass = password.getText().toString();
-                if (pass.length()==0 || !pass.equals(passwordAgain.getText().toString()) ||
-                        !mGoogleApiModel.setPassword(password.getText().toString())) {
-                    // password mismatch or failed to set password
-                    newPasswordPrompt();
-                }else{
-                    // cache password
-                    mCachedPassword=password.getText().toString();
+                if (changePassword){
+                    mGoogleApiModel.changePassword(pass, new GoogleApiModel.ListFolderCallback() {
+                        @Override
+                        public void callback(GoogleApiModel.FolderInfo info) {
+                            Timber.tag(LogAreas.GOOGLEAPI.s()).i("password successfully changed.");
+                        }
+                    });
+                }else {
+                    if (pass.length() == 0 || !pass.equals(passwordAgain.getText().toString()) ||
+                            !mGoogleApiModel.setPassword(password.getText().toString())) {
+                        // password mismatch or failed to set password
+                        newPasswordPrompt(false);
+                    } else {
+                        // cache password
+                        mCachedPassword = password.getText().toString();
+                    }
                 }
             }
-
         });
         builder.setOnCancelListener(new DialogInterface.OnCancelListener() {
             @Override
@@ -370,7 +379,7 @@ public class OffRecordMainActivity extends AppCompatActivity
             public void onResult(@NonNull Status status) {
                 if (status.isSuccess()) {
                     mGoogleApiModel.clearPasswordValidationData();
-                    newPasswordPrompt();
+                    newPasswordPrompt(false);
                 }else{
                     Timber.tag(LogAreas.GOOGLEAPI.s()).e("delete everything failed!! %d, %s", status.getStatusCode(), status.getStatusMessage());
                 }
@@ -447,7 +456,7 @@ public class OffRecordMainActivity extends AppCompatActivity
             }else if(mGoogleApiModel.getStatus()!=GoogleApiModel.GoogleApiStatus.DISCONNECTED &&
                     mCachedPassword==null) {
                 if (mGoogleApiModel.needNewPassword()) {
-                    newPasswordPrompt();
+                    newPasswordPrompt(false);
                 } else {
                     passwordPrompt();
                 }
@@ -478,7 +487,7 @@ public class OffRecordMainActivity extends AppCompatActivity
                         mGoogleApiModel.setPassword(mCachedPassword);
                     }else {
                         if (mGoogleApiModel.needNewPassword()) {
-                            newPasswordPrompt();
+                            newPasswordPrompt(false);
                         } else {
                             passwordPrompt();
                         }
