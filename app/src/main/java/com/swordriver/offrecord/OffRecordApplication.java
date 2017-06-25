@@ -26,11 +26,7 @@ public class OffRecordApplication extends Application {
             public void uncaughtException (Thread thread, Throwable e)
             {
                 Timber.e(e, "Uncaught Exception!!");
-                if (BuildConfig.DEBUG) {
-                    
-                }else {
-                    exit(1);
-                }
+                exit(1);
             }
         });
     }
