@@ -3,10 +3,12 @@ package com.swordriver.offrecord;
 import android.app.Service;
 import android.content.Intent;
 import android.os.Binder;
+import android.os.CountDownTimer;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 
+import com.google.android.gms.common.api.BooleanResult;
 import com.google.android.gms.common.data.DataBufferObserver;
 import com.swordriver.offrecord.JCLogger.LogAreas;
 
@@ -25,6 +27,7 @@ public class OffRecordMainService extends Service{
         GDRIVE_INIT,
         INITIALIZED
     }
+
     OffRecordServiceState mState = OffRecordServiceState.GDRIVE_INIT;
 
     //////////////////////////////////////////////
@@ -41,7 +44,36 @@ public class OffRecordMainService extends Service{
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
+        Timber.tag(LogAreas.LIFECYCLE.s()).v("called.");
         return mBinder;
+    }
+
+    static final int EXIT_TIMEOUT = 5000;
+
+    CountDownTimer mExitTimer=null;
+
+    @Override
+    public void onRebind(Intent intent) {
+        Timber.tag(LogAreas.LIFECYCLE.s()).v("called.");
+        if (mExitTimer!=null) mExitTimer.cancel();
+        super.onRebind(intent);
+    }
+
+    @Override
+    public boolean onUnbind(Intent intent) {
+        Timber.tag(LogAreas.LIFECYCLE.s()).v("called.");
+        mExitTimer = new CountDownTimer(EXIT_TIMEOUT, 1000) {
+            @Override
+            public void onTick(long millisUntilFinished) {
+
+            }
+
+            @Override
+            public void onFinish() {
+                stopSelf();
+            }
+        }.start();
+        return true;
     }
 
     @Override
@@ -59,6 +91,7 @@ public class OffRecordMainService extends Service{
 
     @Override
     public void onDestroy() {
+        Timber.tag(LogAreas.LIFECYCLE.s()).v("called.");
         super.onDestroy();
         // TODO: disconnect from services
     }
