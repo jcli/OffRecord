@@ -8,6 +8,12 @@ android {
             storeFile file(System.getenv("ANDROID_DEBUG_KEY"))
             storePassword 'qwerty'
         }
+        release_config {
+            keyAlias 'release_key'
+            keyPassword 'qwerty'
+            storeFile file(System.getenv("ANDROID_RELEASE_KEY"))
+            storePassword 'qwerty'
+        }
     }
     compileSdkVersion 25
     buildToolsVersion "25.0.2"
@@ -21,8 +27,9 @@ android {
     }
     buildTypes {
         release {
-            minifyEnabled false
+            minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release_config
         }
         debug {
             signingConfig signingConfigs.debug_config
