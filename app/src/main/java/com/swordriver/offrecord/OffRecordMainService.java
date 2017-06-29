@@ -7,6 +7,7 @@ import android.os.CountDownTimer;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 
 import com.google.android.gms.common.api.BooleanResult;
 import com.google.android.gms.common.data.DataBufferObserver;
@@ -126,7 +127,11 @@ public class OffRecordMainService extends Service{
     private GoogleApiModelSecure mGoogleApiModel =null;
     public GoogleApiModelSecure getGoogleApiModel(AppCompatActivity callerActivity){
         if (mGoogleApiModel==null && callerActivity!=null){
-            mGoogleApiModel = new GoogleApiModelSecure(this, callerActivity, LogAreas.GOOGLEAPI.s(), getString(R.string.server_client_id));
+            if (BuildConfig.DEBUG) {
+                mGoogleApiModel = new GoogleApiModelSecure(this, callerActivity, LogAreas.GOOGLEAPI.s(), getString(R.string.server_client_id_debug));
+            }else{
+                mGoogleApiModel = new GoogleApiModelSecure(this, callerActivity, LogAreas.GOOGLEAPI.s(), getString(R.string.server_client_id_release));
+            }
             mGoogleApiModel.addObserver(mGoogleObserver);
         }
         return mGoogleApiModel;

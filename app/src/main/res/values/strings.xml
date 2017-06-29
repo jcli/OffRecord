@@ -9,5 +9,6 @@
     <string name="string_enter_password">Enter Password</string>
     <string name="string_change_pass">Change Password</string>
     <string name="string_reset_account">Reset Account</string>
-    <string name="server_client_id">177766156622-21ko8nnqkhtdg7tvl17gefjqtnmc74ai.apps.googleusercontent.com</string>
+    <string name="server_client_id_debug">177766156622-21ko8nnqkhtdg7tvl17gefjqtnmc74ai.apps.googleusercontent.com</string>
+    <string name="server_client_id_release">177766156622-jlvl7k1k4eabijcuoq799iht8da51q45.apps.googleusercontent.com</string>
 </resources>
