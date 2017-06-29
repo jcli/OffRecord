@@ -127,11 +127,8 @@ public class OffRecordMainService extends Service{
     private GoogleApiModelSecure mGoogleApiModel =null;
     public GoogleApiModelSecure getGoogleApiModel(AppCompatActivity callerActivity){
         if (mGoogleApiModel==null && callerActivity!=null){
-            if (BuildConfig.DEBUG) {
-                mGoogleApiModel = new GoogleApiModelSecure(this, callerActivity, LogAreas.GOOGLEAPI.s(), getString(R.string.server_client_id_debug));
-            }else{
-                mGoogleApiModel = new GoogleApiModelSecure(this, callerActivity, LogAreas.GOOGLEAPI.s(), getString(R.string.server_client_id_release));
-            }
+
+            mGoogleApiModel = new GoogleApiModelSecure(this, callerActivity, LogAreas.GOOGLEAPI.s(), getString(R.string.server_client_id));
             mGoogleApiModel.addObserver(mGoogleObserver);
         }
         return mGoogleApiModel;
