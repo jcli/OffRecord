@@ -184,6 +184,10 @@ public class OffRecordMainActivity extends AppCompatActivity
                 Timber.tag(LogAreas.UI.s()).v("account reset clicked.");
                 resetAccount();
                 break;
+            case (R.id.action_about):
+                Timber.tag(LogAreas.UI.s()).v("account about clicked.");
+                aboutApp();
+                break;
             default:
 
         }
@@ -382,6 +386,22 @@ public class OffRecordMainActivity extends AppCompatActivity
                 }
             }
         });
+    }
+
+    private void aboutApp(){
+        final AlertDialog.Builder builder = new AlertDialog.Builder(OffRecordMainActivity.this);
+        builder.setTitle("Off Record");
+        String message = String.format("Build: %s, Version: %s", BuildConfig.BUILD_TYPE,
+                BuildConfig.VERSION_NAME + "-" + BuildConfig.GitHash);
+        builder.setMessage(message);
+        // Set up the buttons
+        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+            }
+        });
+        mPassDialog = builder.show();
+        mPassDialog.setCanceledOnTouchOutside(false);
     }
 
     private void setUserName(){
