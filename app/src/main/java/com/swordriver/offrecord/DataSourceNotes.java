@@ -1,5 +1,6 @@
 package com.swordriver.offrecord;
 
+import android.support.annotation.Keep;
 import android.support.annotation.NonNull;
 
 import java.lang.reflect.Type;
@@ -39,6 +40,7 @@ public class DataSourceNotes {
     }
     private NotesCallback mListner;
 
+    @Keep
     public static class NoteItem{
         public String line;
         public NoteItem(String l){
