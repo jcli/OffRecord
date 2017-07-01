@@ -15,8 +15,8 @@ public class DataSourcePassGenerator {
         mCharSet = new StringBuffer();
         mCharSet.append("abcdefghijklmnopqrstuvwxyz");
         mCharSet.append("ABCDEFGHIJKLMNOPQRSTUVWXYZ");
-        mCharSet.append("!@#$%^&*_+");
-        mCharSet.append("?");
+        mCharSet.append("0123456789");
+        mCharSet.append("!@#$%^&*_+?");
     }
 
     public String getPass(int length){

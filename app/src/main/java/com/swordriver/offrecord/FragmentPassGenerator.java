@@ -53,7 +53,7 @@ public class FragmentPassGenerator extends Fragment implements FragmentBackStack
     private class GenerateButtonClicked implements View.OnClickListener {
         @Override
         public void onClick(View v) {
-            mPassEditText.setText(mGenerator.getPass(20));
+            mPassEditText.setText(mGenerator.getPass(15));
         }
     }
 
