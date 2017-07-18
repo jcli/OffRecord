@@ -68,6 +68,7 @@ public class FragmentNotesDetails extends Fragment implements OffRecordMainActiv
 
     @Override
     public void onStop(){  // do all clean up here
+        Timber.tag(LogAreas.LIFECYCLE.s()).v("called.");
         super.onStop();
     }
 
