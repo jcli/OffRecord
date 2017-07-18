@@ -71,6 +71,7 @@ public class FragmentNotesList extends Fragment implements OffRecordMainActivity
 
     @Override
     public void onResume(){
+        Timber.tag(JCLogger.LogAreas.LIFECYCLE.s()).v("called.");
         super.onResume();
         // register itself with main activity
         OffRecordMainActivity activity = (OffRecordMainActivity) getActivity();
@@ -79,7 +80,9 @@ public class FragmentNotesList extends Fragment implements OffRecordMainActivity
 
     @Override
     public void onStop(){  // do all clean up here
+        Timber.tag(JCLogger.LogAreas.LIFECYCLE.s()).v("called.");
         super.onStop();
+        mNotesListAdapter.clear();
         OffRecordMainActivity activity = (OffRecordMainActivity) getActivity();
         activity.removeServiceListener(this);
         if (mAddNoteDialog!=null) mAddNoteDialog.cancel();

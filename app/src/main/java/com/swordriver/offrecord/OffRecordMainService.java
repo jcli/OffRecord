@@ -93,6 +93,7 @@ public class OffRecordMainService extends Service{
     @Override
     public void onDestroy() {
         Timber.tag(LogAreas.LIFECYCLE.s()).v("called.");
+        mNotesDataSource=null;
         super.onDestroy();
         // TODO: disconnect from services
     }

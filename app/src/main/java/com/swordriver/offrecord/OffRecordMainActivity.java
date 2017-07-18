@@ -54,12 +54,6 @@ public class OffRecordMainActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         Timber.tag(LogAreas.LIFECYCLE.s()).v("called.");
 
-        // restore saved state
-        if (savedInstanceState != null) {
-            mCachedPassword = savedInstanceState.getString(CACHED_PASSWORD);
-            mLastActiveTime= savedInstanceState.getLong(LAST_ACTIVE_TIME);
-        }
-
         mServiceListeners = new HashSet<ControllerServiceInterface>();
 
         super.onCreate(savedInstanceState);
@@ -92,13 +86,6 @@ public class OffRecordMainActivity extends AppCompatActivity
     @Override
     public void onStart(){
         super.onStart();
-
-        // see if password timeout have passed.
-        if (System.currentTimeMillis()-TIMEOUT_DURATION>mLastActiveTime){
-            mCachedPassword=null;
-            if (mGoogleApiModel!=null) mGoogleApiModel.clearPassword();
-            Timber.tag(LogAreas.UI.s()).w("clearing cached password.");
-        }
 
         // start background serivce
         Intent serviceStartIntent = new Intent(this, OffRecordMainService.class);
@@ -149,9 +136,6 @@ public class OffRecordMainActivity extends AppCompatActivity
 
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState) {
-        mLastActiveTime=System.currentTimeMillis();
-        if (mCachedPassword!=null) savedInstanceState.putString(CACHED_PASSWORD, mCachedPassword);
-        savedInstanceState.putLong(LAST_ACTIVE_TIME, mLastActiveTime);
         super.onSaveInstanceState(savedInstanceState);
     }
 
@@ -283,10 +267,8 @@ public class OffRecordMainActivity extends AppCompatActivity
     private HashSet<ControllerServiceInterface> mServiceListeners;
     private OffRecordMainService mMainService;
     private GoogleApiModelSecure mGoogleApiModel;
-    private String mCachedPassword=null;
     private AlertDialog mNewPassDialog=null;
     private AlertDialog mPassDialog=null;
-    private long mLastActiveTime= System.currentTimeMillis();
     private ViewPager mViewPager;
     private TabLayout mTabLayout;
     private OffRecordPagerAdapter mPagerAdapter;
@@ -326,8 +308,7 @@ public class OffRecordMainActivity extends AppCompatActivity
                         // password mismatch or failed to set password
                         newPasswordPrompt(false);
                     } else {
-                        // cache password
-                        mCachedPassword = password.getText().toString();
+                        // set password succeeded
                     }
                 }
             }
@@ -358,7 +339,7 @@ public class OffRecordMainActivity extends AppCompatActivity
                     // wrong password
                     passwordPrompt();
                 }else{
-                    mCachedPassword=localPassword;
+                    // password correct
                 }
             }
         });
@@ -467,11 +448,9 @@ public class OffRecordMainActivity extends AppCompatActivity
             mGoogleApiModel = mMainService.getGoogleApiModel(OffRecordMainActivity.this);
             mGoogleApiModel.addObserver(mGoogleConnectionObserver);
             if (mGoogleApiModel.getStatus()== GoogleApiModel.GoogleApiStatus.DISCONNECTED) {
-                mCachedPassword=null;
                 mGoogleApiModel.setResolutionActivity(OffRecordMainActivity.this);
                 mGoogleApiModel.open();
-            }else if(mGoogleApiModel.getStatus()!=GoogleApiModel.GoogleApiStatus.DISCONNECTED &&
-                    mCachedPassword==null) {
+            }else if (mGoogleApiModel.getStatus()==GoogleApiModel.GoogleApiStatus.CONNECTED_UNINITIALIZED){
                 if (mGoogleApiModel.needNewPassword()) {
                     newPasswordPrompt(false);
                 } else {
@@ -493,21 +472,16 @@ public class OffRecordMainActivity extends AppCompatActivity
             GoogleApiModel.GoogleApiStatus status = (GoogleApiModel.GoogleApiStatus)(arg);
             switch (status){
                 case DISCONNECTED:
-                    mCachedPassword=null;
                     mGoogleApiModel.setResolutionActivity(OffRecordMainActivity.this);
                     if (mGoogleApiModel.getStatus()== GoogleApiModel.GoogleApiStatus.DISCONNECTED){
                         mGoogleApiModel.open();
                     }
                     break;
                 case CONNECTED_UNINITIALIZED:
-                    if (mCachedPassword!=null){
-                        mGoogleApiModel.setPassword(mCachedPassword);
-                    }else {
-                        if (mGoogleApiModel.needNewPassword()) {
-                            newPasswordPrompt(false);
-                        } else {
-                            passwordPrompt();
-                        }
+                    if (mGoogleApiModel.needNewPassword()) {
+                        newPasswordPrompt(false);
+                    } else {
+                        passwordPrompt();
                     }
                     break;
                 case INITIALIZED:
