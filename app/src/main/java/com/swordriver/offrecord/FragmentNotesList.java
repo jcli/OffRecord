@@ -16,6 +16,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.github.clans.fab.FloatingActionButton;
@@ -47,6 +48,7 @@ public class FragmentNotesList extends Fragment implements OffRecordMainActivity
     private Set<Integer> mCurrentSelections;
     private ItemClickListener mItemClickListner;
     private ItemSelectListener mItemSelectListner;
+    private ProgressBar mProgressSpinner;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -55,6 +57,7 @@ public class FragmentNotesList extends Fragment implements OffRecordMainActivity
         View rootView = inflater.inflate(R.layout.fragment_notes_list, container, false);
         mNotesListAdapter = new NotesListAdapter(getActivity(), R.layout.fragment_notes_list_item);
         ListView notesListView = (ListView) rootView.findViewById(R.id.notesListView);
+        mProgressSpinner = (ProgressBar) rootView.findViewById(R.id.note_list_progress_loader);
         notesListView.setAdapter(mNotesListAdapter);
         mItemClickListner= new ItemClickListener();
         mItemSelectListner = new ItemSelectListener();
@@ -82,6 +85,7 @@ public class FragmentNotesList extends Fragment implements OffRecordMainActivity
     public void onStop(){  // do all clean up here
         Timber.tag(JCLogger.LogAreas.LIFECYCLE.s()).v("called.");
         super.onStop();
+        mProgressSpinner.setVisibility(VISIBLE);
         mNotesListAdapter.clear();
         OffRecordMainActivity activity = (OffRecordMainActivity) getActivity();
         activity.removeServiceListener(this);
@@ -122,6 +126,7 @@ public class FragmentNotesList extends Fragment implements OffRecordMainActivity
     @Override
     public void startProcessing(OffRecordMainService service) {
         Timber.tag(LogAreas.SECURE_NOTES.s()).v("MainActivity called startProcessing()");
+        mProgressSpinner.setVisibility(View.INVISIBLE);
         mNotesSource = service.getNotesDataSource();
         mNotesSource.setListner(this);
         mNotesSource.init(service.getGoogleApiModel(null));
