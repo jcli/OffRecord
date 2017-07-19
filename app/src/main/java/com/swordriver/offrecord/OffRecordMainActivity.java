@@ -156,10 +156,10 @@ public class OffRecordMainActivity extends AppCompatActivity
 
         //noinspection SimplifiableIfStatement
         switch (id){
-            case (R.id.action_enter_pass):
-                Timber.tag(LogAreas.UI.s()).v("enter password clicked.");
-                passwordPrompt();
-                break;
+//            case (R.id.action_enter_pass):
+//                Timber.tag(LogAreas.UI.s()).v("enter password clicked.");
+//                passwordPrompt();
+//                break;
             case (R.id.action_change_pass):
                 Timber.tag(LogAreas.UI.s()).v("change password clicked.");
                 newPasswordPrompt(true);
