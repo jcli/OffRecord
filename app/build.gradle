@@ -30,7 +30,7 @@ android {
         applicationId "com.swordriver.offrecord"
         minSdkVersion 19
         targetSdkVersion 25
-        versionCode 2
+        versionCode 3
         versionName "1.0"
         buildConfigField "String", "GitHash", "\"${getGitHash()}\""
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
